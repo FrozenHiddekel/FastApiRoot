@@ -1,0 +1,10 @@
+fastapi~=0.109.2
+SQLAlchemy~=2.0.27
+pydantic~=2.6.1
+python-dotenv~=1.0.1
+alembic~=1.13.1
+uvicorn
+fastapi_users
+fastapi_users_db_sqlalchemy
+sqlalchemy_utils
+asyncpg
