@@ -8,7 +8,7 @@
 5) сделать таблицы при помощи команды alembic upgrade head
 6) запустить приложение командой uvicorn src.main:app
 
-## Для взаимодействия с телеграмм ботом необходимо следовать инструкциям отсюда: https://github.com/FrozenHiddekel/taskTgBot
+## Для взаимодействия с телеграмм ботом необходимо следовать инструкциям отсюда: https://github.com/FrozenHiddekel/reportTgBot
 
 
 
