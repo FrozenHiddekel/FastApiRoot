@@ -1,20 +1,22 @@
-"""Database init
+"""db init
 
-Revision ID: f2cb1a80fd9d
+Revision ID: 7f6f283a7b3d
 Revises: 
-Create Date: 2024-02-27 00:08:56.167890
+Create Date: 2024-03-19 04:03:52.297758
 
 """
+from typing import Sequence, Union
+
 import sqlalchemy_utils
 from alembic import op
 import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f2cb1a80fd9d'
-down_revision = None
-branch_labels = None
-depends_on = None
+revision: str = '7f6f283a7b3d'
+down_revision: Union[str, None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
@@ -32,6 +34,7 @@ def upgrade() -> None:
     sa.Column('email', sqlalchemy_utils.types.email.EmailType(length=255), nullable=False),
     sa.Column('username', sa.String(length=256), nullable=False),
     sa.Column('registered_at', sa.TIMESTAMP(), nullable=True),
+    sa.Column('user_type', sa.String(length=256), nullable=False),
     sa.Column('hashed_password', sa.String(length=1024), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_superuser', sa.Boolean(), nullable=False),
@@ -56,6 +59,7 @@ def upgrade() -> None:
     sa.Column('author_id', sa.BigInteger(), nullable=False),
     sa.Column('task_id', sa.BigInteger(), nullable=False),
     sa.Column('posted_at', sa.TIMESTAMP(), nullable=True),
+    sa.Column('is_moderated', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['author_id'], ['user.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['task_id'], ['task.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),

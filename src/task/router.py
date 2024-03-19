@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.auth.models import User
 from src.comment.models import Comment
+from src.comment.schemas import CommentCreate
 from src.database import get_async_session
 from src.task.models import Task
 from src.task.schemas import TaskCreate, TaskUpdate
@@ -27,9 +28,15 @@ async def get_all_user_tasks(user: User = Depends(current_user), session: AsyncS
 
 
 @router.get("/{task_id}")
-async def get_task_with_comments(task_id: int, session: AsyncSession = Depends(get_async_session)):
+async def get_task_with_comments(task_id: int,
+                                 session: AsyncSession = Depends(get_async_session),
+                                 user: User = Depends(current_user)):
     query = select(Task).where(Task.id == task_id)
-    query2 = select(Comment).where(Comment.task_id == task_id)
+
+    if user.user_type in ["admin", "manager"]:
+        query2 = select(Comment).where(Comment.task_id == task_id)
+    else:
+        query2 = select(Comment).where(Comment.task_id == task_id, Comment.is_moderated == True)
     result = await session.execute(query)
     result2 = await session.execute(query2)
     return result.mappings().all() + result2.mappings().all()
@@ -91,15 +98,34 @@ async def update_task(new_task: TaskUpdate,
 @router.delete("/{task_id}")
 async def delete_task(task_id: int,
                       user: User = Depends(current_user),
-                      session: Session = Depends(get_async_session)):
+                      session: AsyncSession = Depends(get_async_session)):
     author_id = user.id
     query = select(Task).where(Task.id == task_id, Task.author_id == author_id)
     result = await session.execute(query)
     executor = result.mappings().first()
-    print(executor)
     if executor is None:
         raise HTTPException(status_code=403, detail="YOU_DO_NOT_OWN_THIS_TASK")
     stmt = delete(Task).where(Task.id == task_id, Task.author_id == author_id)
+    await session.execute(stmt)
+    await session.commit()
+    return {"status": "success"}
+
+@router.post("/{task_id}/newcomm")
+async def add_comment(comment: CommentCreate,
+                      task_id: int,
+                      user: User = Depends(current_user),
+                      session: Session = Depends(get_async_session)):
+    query = select(Task).where(Task.id == task_id)
+    result = await session.execute(query)
+    executor = result.mappings().first()
+    already_moderated = user.user_type in ["admin", "manager"]
+    print(executor)
+    if executor is None:
+        raise HTTPException(status_code=404, detail="TASK_NOT_FOUND")
+    stmt = insert(Comment).values(body=comment.body,
+                               author_id=user.id,
+                               task_id=task_id,
+                               is_moderated=already_moderated)
     await session.execute(stmt)
     await session.commit()
     return {"status": "success"}

@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import Depends, Request
+from fastapi import Depends, Request, HTTPException
 from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions, models, schemas
 
 from src.auth.utils import get_user_db
@@ -29,7 +29,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         )
         password = user_dict.pop("password")
         user_dict["hashed_password"] = self.password_helper.hash(password)
-
+        user_type = user_dict["user_type"]
+        if user_type not in ["admin", "user", "manager"]:
+            raise HTTPException(status_code=400, detail="invalid user type (Should be admin, user or manager)")
         created_user = await self.user_db.create(user_dict)
 
         await self.on_after_register(created_user, request)

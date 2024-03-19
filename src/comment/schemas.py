@@ -13,5 +13,9 @@ class CommentRead(BaseModel):
 
 class CommentCreate(BaseModel):
     body: str
-    task_id: int
 
+
+class CommentUpdate(BaseModel):
+    id: int
+    body: str
+    is_moderated: bool

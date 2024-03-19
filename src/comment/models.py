@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column,  String, ForeignKey, TIMESTAMP, BigInteger
+from sqlalchemy import Column, String, ForeignKey, TIMESTAMP, BigInteger, Boolean
 
 from src.auth.models import User
 from src.database import Base
@@ -13,5 +13,6 @@ class Comment(Base):
     author_id = Column(BigInteger, ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
     task_id = Column(BigInteger, ForeignKey(Task.id, ondelete="CASCADE"), nullable=False)
     posted_at = Column(TIMESTAMP, default=datetime.utcnow)
+    is_moderated = Column(Boolean, nullable=False, default=False)
 
 
